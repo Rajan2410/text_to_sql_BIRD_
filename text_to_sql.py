@@ -1,3 +1,50 @@
+def generate_sql_from_text(nl_prompt):
+    prompt = nl_prompt
+    generated = generator(prompt)[0]['generated_text']
+
+    sql_start = generated.find('SELECT')
+    sql_query = generated[sql_start:].strip()
+
+    if ";" in sql_query:
+        sql_query = sql_query.split(";")[0].strip()+';'
+
+    if "\n\n\n" in sql_query:
+        sql_query = sql_query.split("\n\n\n")[-1].strip()
+
+    if '$$ LANGUAGE plpgsql;' in sql_query:
+        parts = sql_query.split('$$ LANGUAGE plpgsql;')
+        for part in parts:
+          part=part.strip()
+          if part.startswith('SELECT'):
+            print('part-1')
+            sql_query = part
+            break
+
+    #print('Generated SQL is:\n',sql_query)
+    return sql_query
+
+def validate_sql(query):
+    try:
+        sqlglot.parse_one(query)
+        return True, "Valid SQL"
+    except Exception as e:
+        return False, str(e)
+
+def execute_query(db_id,sql_query):
+  print(f'Executing query in {db_id}')
+  executor = SQLiteExecutor()
+  db_path = (
+    f"/root/anindya/text2sql/data/bird/validation/dev_databases/{db_id}/{db_id}.sqlite"
+  )
+  sql = sql_query
+
+  result = executor.execute_sql(
+    sql=sql,
+    dsn_or_db_path=db_path
+  )
+
+  return result
+
 
 import random
 
@@ -18,8 +65,7 @@ def evaluate_bird_benchmark():
     print(f"Expected SQL: {expected_sql}")
 
     generated_sql = generate_sql_from_text(nl_prompt)
-    print("Generated SQL is:
-",generated_sql)
+    print("Generated SQL is:",generated_sql)
 
     is_valid, validation_msg = validate_sql(generated_sql)
     print(f"SQL Validation: {validation_msg}")
@@ -40,3 +86,5 @@ def evaluate_bird_benchmark():
         print("Success: Generated SQL matches expected output!")
     else:
         print("Failure: Mismatch in results.")
+
+evaluate_bird_benchmark()
