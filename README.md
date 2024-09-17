@@ -1,7 +1,7 @@
 This model no need external file because files are downloaded from the server directly while running
 (ensure the following links given inside the code are correct as per your instances or where it is saved/dowloaded)
 
-Need to setup the dataset and then run the model
+Need to setup the dataset named as "bird_test_dataset" and then run the model
 
 In this text_to_sql I used premsql pre-traned model with BIRD test dataset
 Validated the SQL query by using sqlglot
