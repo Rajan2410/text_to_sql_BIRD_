@@ -1,3 +1,10 @@
+import sqlite3
+import sqlglot
+import random
+from transformers import pipeline
+
+generator = pipeline("text-generation", model="premai-io/prem-1B-SQL", truncation=True, max_new_tokens=512)
+
 def generate_sql_from_text(nl_prompt):
     prompt = nl_prompt
     generated = generator(prompt)[0]['generated_text']
@@ -44,9 +51,6 @@ def execute_query(db_id,sql_query):
   )
 
   return result
-
-
-import random
 
 def evaluate_bird_benchmark():
     # Picking a random example from the dataset
